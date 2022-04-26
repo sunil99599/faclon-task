@@ -1,0 +1,35 @@
+<mat-drawer-container [hasBackdrop]="true" style="height: 100vh">
+  <mat-drawer #drawer mode="side" style="width: 250px">
+    <!-- navs -->
+    <mat-list role="list" class="nav-list">
+      <mat-list-item
+        role="list-item"
+        class="nav-item"
+        [routerLink]="['/home']"
+        routerLinkActive="active"
+      >
+        <div>Home</div>
+        <mat-icon class="ms-auto">home</mat-icon>
+      </mat-list-item>
+
+      <mat-list-item
+        role="list-item"
+        class="nav-item"
+        [routerLink]="['/slabs']"
+        routerLinkActive="active"
+      >
+        <div>Slabs</div>
+        <mat-icon class="ms-auto">building</mat-icon>
+      </mat-list-item>
+
+      <mat-list-item role="list-item" class="nav-item" (click)="onLogout()">
+        <div>Logout</div>
+        <mat-icon class="ms-auto">logout</mat-icon>
+      </mat-list-item>
+    </mat-list>
+  </mat-drawer>
+  <mat-drawer-content>
+    <app-header (toggleSidenav)="drawer.toggle()"></app-header>
+    <ng-content></ng-content>
+  </mat-drawer-content>
+</mat-drawer-container>
