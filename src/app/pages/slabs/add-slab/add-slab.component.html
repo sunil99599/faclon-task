@@ -26,15 +26,6 @@
     </div>
 
     <table class="table mt-4">
-      <thead>
-        <tr>
-          <th>S.No</th>
-          <th>Start Slab</th>
-          <th>End Slab</th>
-          <th>Action</th>
-          <th></th>
-        </tr>
-      </thead>
       <tbody>
         <tr *ngFor="let slab of slabs; let i = index">
           <td>{{ i + 1 }}</td>
@@ -44,8 +35,8 @@
               <input
                 matInput
                 type="number"
-                min="1"
-                max="99"
+                min="0"
+                max="100"
                 [id]="'slabStart' + i"
                 [(ngModel)]="slabs[i].startSlab"
               />
@@ -57,8 +48,9 @@
               <input
                 matInput
                 type="number"
-                min="2"
+                min="0"
                 max="100"
+                [id]="'slabEnd' + i"
                 [(ngModel)]="slabs[i].endSlab"
               />
             </mat-form-field>
@@ -66,25 +58,39 @@
           <td>
             <mat-form-field appearance="outline" class="w-100">
               <mat-label>Action</mat-label>
-              <mat-select [(ngModel)]="slabs[i].action">
+              <mat-select
+                [(ngModel)]="slabs[i].action"
+                [id]="'action' + i"
+                [disabled]="slabs.length - 1 !== i"
+              >
                 <mat-option value="on">ON</mat-option>
                 <mat-option value="off">OFF</mat-option>
               </mat-select>
             </mat-form-field>
           </td>
           <td>
-            <button mat-mini-fab color="primary" (click)="onAdd(i)">
-              <mat-icon>add</mat-icon>
-            </button>
             <button
               mat-mini-fab
               color="warn"
               class="ms-3"
               (click)="onRemove(i)"
+              *ngIf="i === slabs.length - 1 && i != 0"
             >
               <mat-icon>remove</mat-icon>
             </button>
           </td>
+        </tr>
+
+        <tr>
+          <th>S.No</th>
+          <th>Start Slab</th>
+          <th>End Slab</th>
+          <th>Action</th>
+          <th>
+            <button mat-mini-fab color="primary" (click)="onAdd()">
+              <mat-icon>add</mat-icon>
+            </button>
+          </th>
         </tr>
       </tbody>
     </table>

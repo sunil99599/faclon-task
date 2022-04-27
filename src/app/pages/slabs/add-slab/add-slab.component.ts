@@ -14,7 +14,7 @@ declare var $: any;
 export class AddSlabComponent implements OnInit, AfterViewInit {
   defaultSlab: any = {
     startSlab: 1,
-    endSlab: 2,
+    endSlab: 20,
     action: 'on',
   };
   defaultSlabData = {
@@ -38,9 +38,74 @@ export class AddSlabComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {}
 
-  onAdd(i) {
-    let copySlab = _.cloneDeep(this.slabs[i]);
-    this.slabs.push(copySlab);
+  between(x, min, max) {
+    return x >= min && x <= max;
+  }
+
+  checkInRange(start, end, rangestart, rangeend) {
+    console.log(start, end, rangestart, rangeend);
+    let startSlabBetween = this.between(start, rangestart, rangeend);
+    let endSlabBetween = this.between(end, rangestart, rangeend);
+
+    if (startSlabBetween || endSlabBetween) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  onAdd() {
+    let error = false;
+    let copySlab = _.cloneDeep(this.slabs[this.slabs.length - 1]);
+    console.log(copySlab);
+
+    if (copySlab.startSlab === null || copySlab.startSlab === '') {
+      this.notify.setError('Start slab field required', '');
+      return;
+    }
+    if (copySlab.endSlab === null || copySlab.endSlab === '') {
+      this.notify.setError('End slab field required', '');
+      return;
+    }
+
+    if (copySlab.startSlab < 0 || copySlab.endSlab > 100) {
+      this.notify.setError('Range Should be between 0-100', '');
+      return;
+    }
+
+    if (copySlab.startSlab > copySlab.endSlab) {
+      this.notify.setError(
+        'Start slab value should be greater then end slab value',
+        ''
+      );
+      return;
+    }
+
+    for (let i = 0; i < this.slabs.length - 1; i++) {
+      let currentSlab = this.slabs[i];
+      let result = this.checkInRange(
+        copySlab.startSlab,
+        copySlab.endSlab,
+        currentSlab.startSlab,
+        currentSlab.endSlab
+      );
+      if (result) {
+        error = true;
+        this.notify.setError(
+          `Range Should not be between ${currentSlab.startSlab} - ${currentSlab.endSlab}`,
+          ''
+        );
+        break;
+      }
+    }
+    if (!error) {
+      copySlab.startSlab = copySlab.endSlab + 1;
+      copySlab.endSlab = '';
+      $(`#slabStart${this.slabs.length - 1}`).prop('disabled', true);
+      $(`#slabEnd${this.slabs.length - 1}`).prop('disabled', true);
+      $(`#action${this.slabs.length - 1}`).prop('disabled', true);
+      this.slabs.push(copySlab);
+    }
   }
 
   onRemove(i) {
@@ -63,36 +128,6 @@ export class AddSlabComponent implements OnInit, AfterViewInit {
         'Fields required'
       );
     }
-
-    for (let i = 0; i < this.slabs.length; i++) {
-      let element = this.slabs[i];
-      if (
-        !element.startSlab ||
-        element.startSlab < 1 ||
-        element.startSlab > 99
-      ) {
-        this.notify.setError(
-          'Slab start range should be between 1-99 !',
-          'At S.No - ' + (i + 1)
-        );
-        break;
-      }
-      if (!element.endSlab || element.endSlab < 2 || element.endSlab > 100) {
-        this.notify.setError(
-          'Slab ending range should be between 2-100 !',
-          'At S.No - ' + (i + 1)
-        );
-        break;
-      }
-      if (!element.action) {
-        this.notify.setError(
-          'Set the action to ON or OFF !',
-          'At S.No - ' + (i + 1)
-        );
-        break;
-      }
-    }
-    this.formValid = true;
     let data = {
       ...this.slabData,
       slabs: [...this.slabs],
@@ -101,8 +136,8 @@ export class AddSlabComponent implements OnInit, AfterViewInit {
       'Your configuration saved successfully !',
       'Check console for the log data'
     );
-    this.slabData = this.defaultSlab;
-    this.slabs = [_.cloneDeep(this.defaultSlab)];
+    // this.slabData = this.defaultSlab;
+    // this.slabs = [_.cloneDeep(this.defaultSlab)];
     console.log(data);
   }
 }
